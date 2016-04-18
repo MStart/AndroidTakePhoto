@@ -1,6 +1,12 @@
 # AndroidTakePhoto
 一键拍照
 
+#引用
+compile 'com.mylhyl:takePhoto:1.0.0'
+
+#需要权限
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
 #使用说明
 在拍照事件的中调用 requestTakePhotoForResult 方法
 TakePhotoOptions 参数可指定输出图片大小

@@ -5,7 +5,8 @@
 在拍照事件的中调用 requestTakePhotoForResult 方法
 TakePhotoOptions 参数可指定输出图片大小
 
-       TakePhotoManager.getInstance().requestTakePhotoForResult(this, new TakePhotoOptions.Builder().build(), new TakePhotoResult() {
+       TakePhotoManager.getInstance().requestTakePhotoForResult(this, new TakePhotoOptions.Builder().build(),
+       new TakePhotoResult() {
             @Override
             public void onFailure(String message) {
                 Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();

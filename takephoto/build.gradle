@@ -26,14 +26,14 @@ def gitUrl = 'https://github.com/mylhyl/AndroidTakePhoto.git'
 //唯一包名
 group = "com.mylhyl"
 //版本号
-version = "1.0.0"
+version = "1.0.1"
 
 install {
     repositories.mavenInstaller {
         pom {
             project {
                 packaging 'aar'
-                artifactId 'TakePhoto'
+                artifactId 'takephoto'
                 name 'one key task photo' //添加项目描述
                 url siteUrl
                 //设置开源证书信息
@@ -92,7 +92,7 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = "maven" //上传的中央仓库名称
-        name = "TakePhoto" //上传的项目的名字
+        name = "takephoto" //上传的项目的名字
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]
@@ -102,5 +102,5 @@ bintray {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:support-v4:23.1.1'
 }

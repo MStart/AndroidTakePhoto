@@ -16,9 +16,10 @@ import java.io.File;
  */
 public final class TakePhotoManager {
     private static final String KEY_INTERNAL_SAVED_VIEW_STATE = "internalSavedViewState";
-    private static final String KEY_ORIGINAL_FILE = "mOriginalFile";
-    private static final String KEY_COMPRESSED_FILE = "mCompressedFile";
-    private static final String KEY_THUMBNAIL_FILE = "mThumbnailFile";
+    private static final String KEY_ORIGINAL_FILE = "OriginalFile";
+    private static final String KEY_COMPRESSED_FILE = "CompressedFile";
+    private static final String KEY_THUMBNAIL_FILE = "ThumbnailFile";
+    private static final String EXTRA_TAKE_PHOTO_OPTIONS = "TakePhotoOptions";
     public static final int REQUEST_CODE_TAKE_PHOTO = 0x38;
     private static TakePhotoManager mInstance = null;
     private File mTakePhotoDir;
@@ -37,11 +38,23 @@ public final class TakePhotoManager {
 
     }
 
-    private void initialize(Context context) {
-        if (mTakePhotoDir == null)
-            mTakePhotoDir = TakePhotoUtil.getCacheDir("pictures", context.getApplicationContext());
-        if (mTakePhotoDir != null && mOriginalFile == null)
-            mOriginalFile = new File(mTakePhotoDir, "takePhoto.jpg").getAbsolutePath();
+    public boolean createForResult(Bundle savedInstanceState, TakePhotoResult callback) {
+        if (callback == null) {
+            throw new IllegalArgumentException("TakePhotoResult is null");
+        }
+        mCallBack = callback;
+        if (savedInstanceState != null && mTakePhotoOptions != null) {
+            Bundle bundle = savedInstanceState.getBundle(KEY_INTERNAL_SAVED_VIEW_STATE);
+            if (bundle != null) {
+                mOriginalFile = bundle.getString(KEY_ORIGINAL_FILE);
+                mTakePhotoOptions.getCompressedOptions().path = bundle.getString(KEY_COMPRESSED_FILE);
+                if (mTakePhotoOptions.isCreateThumbnail())
+                    mTakePhotoOptions.getThumbnailOptions().path = bundle.getString(KEY_THUMBNAIL_FILE);
+                mCallBack.onResult(mOriginalFile, mTakePhotoOptions);
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -50,8 +63,8 @@ public final class TakePhotoManager {
      * @param activity
      * @return 返回照片文件
      */
-    public void requestTakePhotoForResult(Activity activity) {
-        requestTakePhotoForResult(activity, TakePhotoOptions.DEFAULT);
+    public void request(Activity activity) {
+        request(activity, TakePhotoOptions.DEFAULT);
     }
 
     /**
@@ -60,9 +73,8 @@ public final class TakePhotoManager {
      * @param activity
      * @param options  图片参数
      */
-    public void requestTakePhotoForResult(Activity activity, TakePhotoOptions options) {
-        initialize(activity);
-        if (checkParams(options)) return;
+    public void request(Activity activity, TakePhotoOptions options) {
+        if (checkParams(activity, options)) return;
         try {
             activity.startActivityForResult(getIntent(), REQUEST_CODE_TAKE_PHOTO);
         } catch (ActivityNotFoundException e) {
@@ -77,8 +89,8 @@ public final class TakePhotoManager {
      * @param fragment
      * @return 返回照片文件
      */
-    public void requestTakePhotoForResult(Fragment fragment) {
-        requestTakePhotoForResult(fragment, TakePhotoOptions.DEFAULT);
+    public void request(Fragment fragment) {
+        request(fragment, TakePhotoOptions.DEFAULT);
     }
 
     /**
@@ -87,9 +99,8 @@ public final class TakePhotoManager {
      * @param options  图片参数
      * @param fragment
      */
-    public void requestTakePhotoForResult(Fragment fragment, TakePhotoOptions options) {
-        initialize(fragment.getContext());
-        if (checkParams(options)) return;
+    public void request(Fragment fragment, TakePhotoOptions options) {
+        if (checkParams(fragment.getContext(), options)) return;
         try {
             fragment.startActivityForResult(getIntent(), REQUEST_CODE_TAKE_PHOTO);
         } catch (ActivityNotFoundException e) {
@@ -98,10 +109,16 @@ public final class TakePhotoManager {
         }
     }
 
-    private boolean checkParams(TakePhotoOptions options) {
+    private boolean checkParams(Context context, TakePhotoOptions options) {
         if (options == null) {
             throw new IllegalArgumentException("TakePhotoOptions is null");
         }
+        if (mTakePhotoDir == null)
+            mTakePhotoDir = TakePhotoUtil.getCacheDir("pictures", context.getApplicationContext());
+
+        if (mTakePhotoDir != null && mOriginalFile == null)
+            mOriginalFile = new File(mTakePhotoDir, "takePhoto.jpg").getAbsolutePath();
+
         if (mTakePhotoDir == null) {
             mCallBack.onFailure("创建缓存目录失败，请检查储存设备！");
             return true;
@@ -129,12 +146,10 @@ public final class TakePhotoManager {
      * @param resultCode
      * @param data
      */
-    public void notifyTakePhotoChange(int requestCode, int resultCode, Intent data) {
-        if (resultCode == Activity.RESULT_CANCELED) {
-            return;
-        }
-        if (requestCode == REQUEST_CODE_TAKE_PHOTO) {//拍照
-            onTakePhotoDone();
+    public void activityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode != Activity.RESULT_CANCELED
+                && requestCode == REQUEST_CODE_TAKE_PHOTO) {
+            onTakePhotoDone();//拍照
         }
     }
 
@@ -167,26 +182,6 @@ public final class TakePhotoManager {
             if (outState != null)
                 outState.putBundle(KEY_INTERNAL_SAVED_VIEW_STATE, bundle);
         }
-    }
-
-    public boolean restoreInstanceState(Bundle savedInstanceState, TakePhotoResult callback) {
-        if (callback == null) {
-            throw new IllegalArgumentException("TakePhotoResult is null");
-        }
-        mCallBack = callback;
-        if (savedInstanceState != null && mTakePhotoOptions != null) {
-            Bundle bundle = savedInstanceState.getBundle(KEY_INTERNAL_SAVED_VIEW_STATE);
-            if (bundle != null) {
-                mOriginalFile = bundle.getString(KEY_ORIGINAL_FILE);
-                mTakePhotoOptions.getCompressedOptions().path = bundle.getString(KEY_COMPRESSED_FILE);
-                if (mTakePhotoOptions.isCreateThumbnail())
-                    mTakePhotoOptions.getThumbnailOptions().path = bundle.getString(KEY_THUMBNAIL_FILE);
-                mCallBack.onResult(mOriginalFile, mTakePhotoOptions);
-            }
-            return true;
-
-        }
-        return false;
     }
 
     public File getTakePhotoDir() {

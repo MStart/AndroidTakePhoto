@@ -3,13 +3,14 @@ package com.mylhyl.takephoto;
 import android.text.format.DateFormat;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Locale;
 
 /**
  * Created by hupei on 2016/4/14.
  */
-public final class TakePhotoOptions {
+public final class TakePhotoOptions implements Serializable{
     /**
      * 只有压缩图(720 * 1280)
      */

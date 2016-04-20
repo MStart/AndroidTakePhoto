@@ -20,8 +20,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".FragmentMainActivity"
-            android:configChanges="keyboardHidden|orientation" />
+            android:name=".TakeListActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:label="Activity" />
+        <activity android:name=".TakeThumbnailActivity"></activity>
     </application>
 
 </manifest>

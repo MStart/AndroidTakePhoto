@@ -10,15 +10,13 @@ import java.util.Locale;
 /**
  * Created by hupei on 2016/4/14.
  */
-public final class TakePhotoOptions implements Serializable{
-    /**
-     * 只有压缩图(720 * 1280)
-     */
-    public static final TakePhotoOptions DEFAULT = new TakePhotoOptions();
+public final class TakePhotoOptions implements Serializable {
     private static final int PHOTO_WIDTH = 720; //原图片压缩宽
     private static final int PHOTO_HEIGHT = 1280;//原图片压缩高
     private static final int PHOTO_THUMBNAIL_WIDTH = 180; //缩略图片压缩宽
     private static final int PHOTO_THUMBNAIL_HEIGHT = 320;//缩略图片图片压缩高
+    private File mTakePhotoDir;
+    private File mOriginalFile;//图始图
     private TakePhoto mCompressedOptions;
     private TakePhoto mThumbnailOptions;
     private boolean mCreateThumbnail;
@@ -44,13 +42,13 @@ public final class TakePhotoOptions implements Serializable{
 
     protected TakePhotoOptions setCompressedFilePath(File photoDir) {
         if (mCompressedOptions != null)
-            mCompressedOptions.path = formatCompressedFilePath(photoDir);
+            mCompressedOptions.file = formatCompressedFile(photoDir);
         return this;
     }
 
     protected TakePhotoOptions setThumbnailFilePath(File photoDir) {
         if (mThumbnailOptions != null)
-            mThumbnailOptions.path = formatThumbnailPath(photoDir);
+            mThumbnailOptions.file = formatThumbnailFile(photoDir);
         return this;
     }
 
@@ -60,8 +58,8 @@ public final class TakePhotoOptions implements Serializable{
      * @param photoDir 拍照根目录路径
      * @return
      */
-    private String formatCompressedFilePath(File photoDir) {
-        return photoDir.getAbsolutePath() + "/" + mDate + ".jpg";
+    private File formatCompressedFile(File photoDir) {
+        return new File(photoDir.getAbsolutePath() + "/" + mDate + ".jpg");
     }
 
     /**
@@ -70,8 +68,8 @@ public final class TakePhotoOptions implements Serializable{
      * @param photoDir 拍照根目录路径
      * @return
      */
-    private String formatThumbnailPath(File photoDir) {
-        return photoDir.getAbsolutePath() + "/small_" + mDate + ".jpg";
+    private File formatThumbnailFile(File photoDir) {
+        return new File(photoDir.getAbsolutePath() + "/small_" + mDate + ".jpg");
     }
 
     protected boolean isCreateThumbnail() {
@@ -86,6 +84,14 @@ public final class TakePhotoOptions implements Serializable{
         return mThumbnailOptions;
     }
 
+    protected File getOriginalFile() {
+        return mOriginalFile;
+    }
+
+    protected File getTakePhotoDir() {
+        return mTakePhotoDir;
+    }
+
     public static class Builder {
         private TakePhotoOptions options;
 
@@ -94,7 +100,20 @@ public final class TakePhotoOptions implements Serializable{
         }
 
         public TakePhotoOptions build() {
+            if (options.isCreateThumbnail() && options.mTakePhotoDir != null)
+                options.setThumbnailFilePath(options.mTakePhotoDir);
             return options;
+        }
+
+        public Builder setTakePhotoDir(File dir) {
+            options.mTakePhotoDir = dir;
+            options.setCompressedFilePath(dir);
+            return this;
+        }
+
+        public Builder setTakePhotoFile(File file) {
+            options.mOriginalFile = file;
+            return this;
         }
 
         /**

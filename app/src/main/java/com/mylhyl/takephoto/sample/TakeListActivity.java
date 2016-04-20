@@ -12,7 +12,9 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.mylhyl.takephoto.TakePhotoManager;
+import com.mylhyl.takephoto.TakePhotoOptions;
 import com.mylhyl.takephoto.TakePhotoResult;
+import com.mylhyl.takephoto.TakePhotoUtil;
 
 import java.io.File;
 
@@ -32,7 +34,7 @@ public class TakeListActivity extends AppCompatActivity implements View.OnClickL
             }
 
             @Override
-            public void onResultFile(File originalFile, final File compressedFile) {
+            public void onResultFile(final File compressedFile) {
                 Bitmap bitmap = BitmapFactory.decodeFile(compressedFile.getAbsolutePath());
                 iv.setImageBitmap(bitmap);
             }
@@ -47,7 +49,12 @@ public class TakeListActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
-        TakePhotoManager.getInstance().request(this);
+        File takePhotoDir = TakePhotoUtil.getCacheDir("takePhoto", this);
+        File takePhotoFile = new File(takePhotoDir, "takePhoto.jpg");
+        TakePhotoManager.getInstance().request(this, new TakePhotoOptions.Builder()
+                .setTakePhotoDir(takePhotoDir)
+                .setTakePhotoFile(takePhotoFile)
+                .build());
     }
 
     @Override
@@ -58,7 +65,7 @@ public class TakeListActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     protected void onDestroy() {
-        Log.e("onDestroy","onDestroy");
+        Log.e("onDestroy", "onDestroy");
         super.onDestroy();
     }
 

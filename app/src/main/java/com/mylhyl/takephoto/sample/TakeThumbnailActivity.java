@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.mylhyl.takephoto.TakePhotoManager;
 import com.mylhyl.takephoto.TakePhotoOptions;
 import com.mylhyl.takephoto.TakePhotoResult;
+import com.mylhyl.takephoto.TakePhotoUtil;
 
 import java.io.File;
 
@@ -58,7 +59,7 @@ public class TakeThumbnailActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onResultFile(File originalFile, File compressedFile, File thumbnailFile) {
+                public void onResultFile(File compressedFile, File thumbnailFile) {
                     iv.setImageBitmap(BitmapFactory.decodeFile(compressedFile.getAbsolutePath()));
                     iv1.setImageBitmap(BitmapFactory.decodeFile(thumbnailFile.getAbsolutePath()));
                 }
@@ -67,8 +68,13 @@ public class TakeThumbnailActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
+            File takePhotoDir = TakePhotoUtil.getCacheDir("takePhoto", getContext());
+            File takePhotoFile = new File(takePhotoDir, "takePhoto.jpg");
             TakePhotoManager.getInstance().request(this,
-                    new TakePhotoOptions.Builder().setThumbnailSize().build());
+                    new TakePhotoOptions.Builder()
+                            .setTakePhotoDir(takePhotoDir)
+                            .setTakePhotoFile(takePhotoFile)
+                            .setThumbnailSize().build());
         }
 
         @Override

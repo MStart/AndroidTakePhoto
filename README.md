@@ -24,7 +24,7 @@ Activity 中 onCreate(Bundle savedInstanceState) 或 Fragment 中 onActivityCrea
             }
 
             @Override
-            public void onResultFile(File originalFile, final File compressedFile) {
+            public void onResultFile(final File compressedFile) {
                 Bitmap bitmap = BitmapFactory.decodeFile(compressedFile.getAbsolutePath());
                 iv.setImageBitmap(bitmap);
             }
@@ -34,9 +34,12 @@ Activity 中 onCreate(Bundle savedInstanceState) 或 Fragment 中 onActivityCrea
 ```java
     @Override
     public void onClick(View v) {
-           // TakePhotoManager.getInstance().request(this,
-           //         new TakePhotoOptions.Builder().setThumbnailSize().build());
-        TakePhotoManager.getInstance().request(this);
+        File takePhotoDir = TakePhotoUtil.getCacheDir("takePhoto", this);
+        File takePhotoFile = new File(takePhotoDir, "takePhoto.jpg");
+        TakePhotoManager.getInstance().request(this, new TakePhotoOptions.Builder()
+                .setTakePhotoDir(takePhotoDir)
+                .setTakePhotoFile(takePhotoFile)
+                .build());
     }
 ```
  在Activity 或 Fragment 中重写 onActivityResult 方法，调用 notifyTakePhotoChange 方法通知回调

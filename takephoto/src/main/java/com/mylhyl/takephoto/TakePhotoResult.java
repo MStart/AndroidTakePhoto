@@ -23,33 +23,30 @@ public abstract class TakePhotoResult {
     /**
      * 拍照成功将会调用此方法
      *
-     * @param originalFile   原文件
      * @param compressedFile 压缩文件
      */
-    public void onResultFile(File originalFile, File compressedFile) {
+    public void onResultFile(File compressedFile) {
     }
 
     /**
      * 拍照成功，有缩略图情况下，将会调用此方法
      *
-     * @param originalFile   原文件
      * @param compressedFile 压缩文件
      * @param thumbnailFile  缩略文件
      */
-    public void onResultFile(File originalFile, File compressedFile, File thumbnailFile) {
+    public void onResultFile(File compressedFile, File thumbnailFile) {
     }
 
-    protected final void onResult(final String originalPath, final TakePhotoOptions options) {
+    protected final void onResult(final TakePhotoOptions options) {
         //主UI线程去处理
         new Handler(mLooper).post(new Runnable() {
             @Override
             public void run() {
-                File originalFile = new File(originalPath);
-                File compressedFile = new File(options.getCompressedOptions().path);
+                File compressedFile = options.getCompressedOptions().file;
                 if (options.isCreateThumbnail()) {
-                    onResultFile(originalFile, compressedFile, new File(options.getThumbnailOptions().path));
+                    onResultFile(compressedFile, options.getThumbnailOptions().file);
                 } else
-                    onResultFile(originalFile, compressedFile);
+                    onResultFile(compressedFile);
             }
         });
     }

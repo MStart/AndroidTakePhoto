@@ -30,7 +30,7 @@ public abstract class TakePhotoResult {
     }
 
     /**
-     * 拍照成功将会调用此方法
+     * 拍照成功，有缩略图情况下，将会调用此方法
      *
      * @param originalFile   原文件
      * @param compressedFile 压缩文件

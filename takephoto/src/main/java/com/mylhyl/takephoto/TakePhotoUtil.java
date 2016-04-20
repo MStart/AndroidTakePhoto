@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.media.ThumbnailUtils;
 import android.os.Environment;
 import android.os.StatFs;
 
@@ -68,20 +69,6 @@ public class TakePhotoUtil {
         return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
     }
 
-    public static long getFileOrDirSize(File file) {
-        if (!file.exists()) return 0;
-        if (!file.isDirectory()) return file.length();
-
-        long length = 0;
-        File[] list = file.listFiles();
-        if (list != null) { // 文件夹被删除时, 子文件正在被写入, 文件属性异常返回null.
-            for (File item : list) {
-                length += getFileOrDirSize(item);
-            }
-        }
-        return length;
-    }
-
     /**
      * 创建缩略图
      *
@@ -104,8 +91,8 @@ public class TakePhotoUtil {
                 opts.inJustDecodeBounds = true;
                 BitmapFactory.decodeFile(path, opts);
                 final int minSideLength = Math.min(width, height);
-                opts.inSampleSize = computeSampleSize(opts, minSideLength,
-                        width * height);
+                //设置位图缩放比例
+                opts.inSampleSize = computeSampleSize(opts, minSideLength, width * height);
                 // 指定加载可以加载出图片.
                 opts.inJustDecodeBounds = false;
                 //为位图设置100K的缓存
@@ -114,8 +101,6 @@ public class TakePhotoUtil {
                 opts.inPreferredConfig = Bitmap.Config.RGB_565;
                 //设置图片可以被回收，创建Bitmap用于存储Pixel的内存空间在系统内存不足时可以被回收
                 opts.inPurgeable = true;
-                //设置位图缩放比例
-                opts.inSampleSize = 4;
                 //设置解码位图的尺寸信息
                 opts.inInputShareable = true;
             }
@@ -199,7 +184,6 @@ public class TakePhotoUtil {
      * @return Bitmap
      */
     private static Bitmap rotateImageView(int angle, Bitmap bitmap) {
-        //旋转图片 动作
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         // 创建新的图片
@@ -224,7 +208,6 @@ public class TakePhotoUtil {
             if (!fileDir.exists()) {
                 fileDir.mkdirs();
             }
-            //使用随机数使得发送的图片的缩略图文件名不相同
             File imgFile = new File(filePath);
             if (!imgFile.exists())
                 imgFile.createNewFile();
